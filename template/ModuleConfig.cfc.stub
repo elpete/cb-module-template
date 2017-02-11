@@ -1,0 +1,10 @@
+component {
+    
+    this.name = "@@moduleName@@";
+    this.author = "@@author@@";
+    this.webUrl = "https://github.com/@@gitUsername@@/@@moduleName@@";
+
+    function configure() {
+        //
+    }
+}

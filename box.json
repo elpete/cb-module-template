@@ -1,0 +1,48 @@
+{
+    "name":"Integrated Commands",
+    "version":"2.0.0",
+    "author":"Eric Peterson",
+    "location":"elpete/integrated-commands#v2.0.0",
+    "homepage":"https://github.com/elpete/integrated-commands",
+    "documentation":"https://github.com/elpete/integrated-commands",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/elpete/integrated-commands"
+    },
+    "bugs":"https://github.com/elpete/integrated-commands/issues",
+    "slug":"integrated-commands",
+    "shortDescription":"A CommandBox tool for scaffolding Integrated specs",
+    "type":"commandbox-modules",
+    "keywords":[
+        "testbox",
+        "testing",
+        "integration",
+        "integrated"
+    ],
+    "private":false,
+    "license":[
+        {
+            "type":"MIT",
+            "URL":"https://github.com/elpete/integrated-commands"
+        }
+    ],
+    "dependencies":{
+        
+    },
+    "devDependencies":{
+        
+    },
+    "installPaths":{
+        
+    },
+    "scripts":{
+        "postVersion":"package set location='elpete/integrated-commands#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push && !git push --tags"
+    },
+    "ignore":[
+        "**/.*",
+        "test",
+        "tests"
+    ]
+}

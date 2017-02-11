@@ -1,0 +1,36 @@
+{
+    "name":"@@moduleName@@",
+    "version":"0.0.0",
+    "author":"@@author@@",
+    "location":"@@location@@#v0.0.0",
+    "homepage":"https://github.com/@@location@@",
+    "documentation":"https://github.com/@@location@@",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/@@location@@"
+    },
+    "bugs":"https://github.com/@@location@@/issues",
+    "slug":"@@moduleName@@",
+    "shortDescription":"@@description@@",
+    "description":"@@description@@",
+    "type":"modules",
+    "dependencies":{},
+    "devDependencies":{
+        "coldbox":"^4.3.0+188",
+        "testbox":"^2.4.0+80"
+    },
+    "installPaths":{
+        "testbox":"testbox",
+        "coldbox":"tests/resources/app/coldbox"
+    },
+    "scripts":{
+        "postVersion":"package set location='@@location@@#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push && !git push --tags"
+    },
+    "ignore":[
+        "**/.*",
+        "test",
+        "tests"
+    ]
+}
