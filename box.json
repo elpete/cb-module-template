@@ -1,29 +1,29 @@
 {
-    "name":"Integrated Commands",
-    "version":"2.0.0",
+    "name":"cb-module-template",
+    "version":"0.0.0",
     "author":"Eric Peterson",
-    "location":"elpete/integrated-commands#v2.0.0",
-    "homepage":"https://github.com/elpete/integrated-commands",
-    "documentation":"https://github.com/elpete/integrated-commands",
+    "location":"elpete/cb-module-template#v0.0.0",
+    "homepage":"https://github.com/elpete/cb-module-template",
+    "documentation":"https://github.com/elpete/cb-module-template",
     "repository":{
         "type":"git",
-        "URL":"https://github.com/elpete/integrated-commands"
+        "URL":"https://github.com/elpete/cb-module-template"
     },
-    "bugs":"https://github.com/elpete/integrated-commands/issues",
-    "slug":"integrated-commands",
-    "shortDescription":"A CommandBox tool for scaffolding Integrated specs",
+    "bugs":"https://github.com/elpete/cb-module-template/issues",
+    "slug":"cb-module-template",
+    "shortDescription":"A CommandBox tool for scaffolding ForgeBox modules",
     "type":"commandbox-modules",
     "keywords":[
         "testbox",
         "testing",
-        "integration",
-        "integrated"
+        "modules",
+        "coldbox"
     ],
     "private":false,
     "license":[
         {
             "type":"MIT",
-            "URL":"https://github.com/elpete/integrated-commands"
+            "URL":"https://github.com/elpete/cb-module-template"
         }
     ],
     "dependencies":{
@@ -36,7 +36,7 @@
         
     },
     "scripts":{
-        "postVersion":"package set location='elpete/integrated-commands#v`package version`'",
+        "postVersion":"package set location='elpete/cb-module-template#v`package version`'",
         "onRelease":"publish",
         "postPublish":"!git push && !git push --tags"
     },
