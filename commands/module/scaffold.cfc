@@ -27,6 +27,7 @@
 * {code}
 *
 * With this token set, a repo will be created in GitHub, the local repository pushed, and GitHub set as the upstream repo.
+* The personal access token create needs the full "repo" scope to work.
 */
 component {
 
