@@ -2,7 +2,31 @@
 * Create a new standalone ColdBox module.
 * Comes complete with testing facilities and ready to publish to ForgeBox.
 * This command will create a new directory in the current directory.
-* When you're ready to publish, run `bump --major` to publish your first 1.0.0!
+* When you're ready to publish, just bump your package to publish your first 1.0.0!
+* 
+* {code:bash}
+* bump --major
+* {code}
+*
+* You can set global defaults for gitUsername, author, and email in the module settings.
+* Then you don't need to pass those parameters in to `module scaffold`.
+*
+* {code:bash}
+* config set modules.cb-module-template.gitUsername=elpete
+* config set modules.cb-module-template.author="Eric Peterson"
+* config set modules.cb-module-template.email=eric@elpete.com
+* {code}
+*
+* The `location` argument is derived from "#gitUsername#/#moduleName#".
+* Passing in a location overrides this convention.
+*
+* You can automate the creating of a GitHub repo by setting a GitHub Personal Access Token.
+*
+* {code:bash}
+* config set modules.cb-module-template.githubToken=YOUR-TOKEN-HERE
+* {code}
+*
+* With this token set, a repo will be created in GitHub, the local repository pushed, and GitHub set as the upstream repo.
 */
 component {
 
@@ -13,13 +37,14 @@ component {
 
     /**
     * @moduleName Name of the new ColdBox module to scaffold.
-    * @description A short description of the module.  Used in the box.json and in the README.
-    * @directory Directory to create the module in. Defaults to the current directory
-    * @createGitRepo If true, creates a git repo and an initial commit. Default: true.
-    * @createGitHubRepo If true, uses the GitHub API to create a new repo named "#moduleName#" for the user.  Requires a GitHub Personal Access Token to be set in the config: `config set modules.cb-module-template.githubToken=PERSONAL_ACCESS_TOKEN`.  Personal Access Tokens can be generated at https://github.com/settings/tokens/new.
-    * @gitUsername GitHub (or similar) username where repo will be located.  Can be set globally in the module config: `config set modules.cb-module-template.gitUsername=elpete`
-    * @location The location value for the box.json.  If left empty, defaults to "#gitUsername#/#moduleName#".
-    * @author The name of the author of the module.  Can be set globally in the module config settings: `config set modules.cb-module-template.author="Eric Peterson"`
+    * @description A short description of the module.
+    * @directory Directory to create the module in.
+    * @createGitRepo Create a git repo and an initial commit.
+    * @createGitHubRepo Create a repo on GitHub.
+    * @gitUsername GitHub username where repo will be located.
+    * @location The location value for the box.json.
+    * @author The name of the author of the module.
+    * @email The email of the author of the module.
     */
     function run(
         required string moduleName,
