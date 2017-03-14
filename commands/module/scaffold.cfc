@@ -7,6 +7,7 @@
 component {
 
     property name="moduleSettings" inject="commandbox:moduleSettings:cb-module-template";
+    property name="system" inject="system@constants";
 
     variables.templatePath = "/cb-module-template/template/";
 
@@ -28,9 +29,11 @@ component {
         boolean createGitHubRepo = true,
         string gitUsername,
         string location,
-        string author
+        string author,
+        string email
     ) {
         arguments.author = arguments.author ?: moduleSettings.author;
+        arguments.email = arguments.email ?: moduleSettings.email;
         arguments.gitUsername = arguments.gitUsername ?: moduleSettings.gitUsername;
 
         if ( ! len( gitUsername ) && isNull( location ) ) {
@@ -104,9 +107,48 @@ component {
             return;
         }
 
-        command( "!git init" ).run();
-        command( "!git add ." ).run();
-        command( '!git commit -m "Initial commit"' ).run();
+        // This will trap the full java exceptions to work around this annoying behavior:
+        // https://luceeserver.atlassian.net/browse/LDEV-454
+        var CommandCaller = createObject( 'java', 'com.ortussolutions.commandbox.jgit.CommandCaller' ).init();
+        var Git = createObject( 'java', 'org.eclipse.jgit.api.Git' );
+
+        try {
+            // Have to use reflection here since `init` tries to call the constructor
+            var method = Git.getClass().getDeclaredMethod("init", []);
+            var initCommand = method.invoke(Git, javacast("null", ""));
+            // can't use CommandCaller since it expects a `GitCommand` and `InitCommand` does not inherit from there
+            // local.repo = CommandCaller.call( initCommand );
+            local.repo = initCommand.call()
+            // command( "!git init" ).run();
+
+            var addCommand = local.repo.add().addFilePattern( "." );
+            CommandCaller.call( addCommand );
+            // command( "!git add ." ).run();
+
+            var commitCommand = local.repo.commit()
+                .setMessage( "Initial commit" )
+                .setAuthor( arguments.author, arguments.email );
+            CommandCaller.call( commitCommand );
+            // command( '!git commit -m "Initial commit"' ).run();    
+        }
+        catch ( any var e ) {
+            // If the exception came from the Java call, this exception won't be null
+            var theRealJavaException = CommandCaller.getException();
+            
+            // If it's null, that just means some other CFML code must have blown chunks above.
+            if( isNull( theRealJavaException ) ) {
+                throw( message="Error Cloning Git repository", detail="#e.message#",  type="ModuleScaffoldException");
+            } else {
+                var deepMessage = '';
+                // Start at the top level and work around way down to the root cause.
+                do {
+                    deepMessage &= '#theRealJavaException.toString()# #chr( 10 )#';
+                    theRealJavaException = theRealJavaException.getCause()
+                } while( !isNull( theRealJavaException ) )
+                
+                throw( message="Error Cloning Git repository", detail="#deepMessage#",  type="ModuleScaffoldException");
+            }
+        }
 
         if ( ! createGitHubRepo ) {
             finishUp();
@@ -128,8 +170,50 @@ component {
         }
 
         var response = deserializeJSON( githubRequest.filecontent );
-        command( "!git remote add origin #response.ssh_url#" ).run();
-        command( "!git push -u origin master" ).run();
+
+        try {
+            var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" ).init( response.ssh_url );
+            var remoteAddCommand = local.repo.remoteAdd();
+            remoteAddCommand.setName( "origin" )
+            remoteAddCommand.setUri( uri );
+            CommandCaller.call( remoteAddCommand );
+            // command( "!git remote add origin #response.ssh_url#" ).run();
+
+            // set the upstream
+            var configConstants = createObject( "java", "org.eclipse.jgit.lib.ConfigConstants" );
+            var config = local.repo.getRepository().getConfig();
+            config.setString( configConstants.CONFIG_BRANCH_SECTION, "master", "remote", "origin" );
+            config.setString( configConstants.CONFIG_BRANCH_SECTION, "local-branch", "merge", "refs/heads/master" );
+            config.save();
+
+            // Wrap up system out in a PrintWriter and create a progress monitor to track our clone
+            var printWriter = createObject( 'java', 'java.io.PrintWriter' ).init( system.out, true );
+            var progressMonitor = createObject( 'java', 'org.eclipse.jgit.lib.TextProgressMonitor' ).init( printWriter );
+            var pushCommand = local.repo.push()
+                .setRemote( "origin" )
+                .add( "master" )
+                .setProgressMonitor( progressMonitor );
+            CommandCaller.call( pushCommand );
+            // command( "!git push -u origin master" ).run();
+        }
+        catch ( any var e ) {
+            // If the exception came from the Java call, this exception won't be null
+            var theRealJavaException = CommandCaller.getException();
+            
+            // If it's null, that just means some other CFML code must have blown chunks above.
+            if( isNull( theRealJavaException ) ) {
+                throw( message="Error Cloning Git repository", detail="#e.message#",  type="ModuleScaffoldException");
+            } else {
+                var deepMessage = '';
+                // Start at the top level and work around way down to the root cause.
+                do {
+                    deepMessage &= '#theRealJavaException.toString()# #chr( 10 )#';
+                    theRealJavaException = theRealJavaException.getCause()
+                } while( !isNull( theRealJavaException ) )
+                
+                throw( message="Error Cloning Git repository", detail="#deepMessage#",  type="ModuleScaffoldException");
+            }
+        }
 
         finishUp();
     }

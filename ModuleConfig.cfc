@@ -6,7 +6,8 @@ component {
         settings = {
             githubToken = "",
             gitUsername = "",
-            author = ""
+            author = "",
+            email = ""
         }
     }
 
