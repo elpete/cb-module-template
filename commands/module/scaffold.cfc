@@ -68,7 +68,7 @@ component {
 
         arguments.location = arguments.location ?: "#gitUsername#/#moduleName#";
 
-        arguments.directory = fileSystemUtil.resolvePath( arguments.directory ) & "/#arguments.moduleName#";
+        arguments.directory = fileSystemUtil.resolvePath( arguments.directory );
         if ( ! directoryExists( arguments.directory ) ) {
             directoryCreate( arguments.directory );
         }
@@ -125,7 +125,6 @@ component {
         fileWrite( arguments.directory & "/tests/resources/ModuleIntegrationSpec.cfc", moduleIntegrationSpec );
         fileWrite( arguments.directory & "/tests/specs/integration/SampleIntegrationSpec.cfc", sampleIntegrationSpec );
 
-        command( "cd #moduleName#" ).run();
         command( "install" ).run();
 
         if ( ! createGitRepo ) {
