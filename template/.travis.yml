@@ -19,8 +19,6 @@ install:
 before_script:
 - box server start cfengine=$ENGINE port=8500
 script: >
-  testResults="$(box testbox run runner='http://127.0.0.1:8500/tests/runner.cfm' )";
-  echo "$testResults";
-  if grep -i "\[Failures: [1-9][0-9]\?\]\|<t[^>]*>\|<b[^>]*>" <<< $testResults;  then exit 1; fi 
+  box testbox run runner='http://127.0.0.1:8500/tests/runner.cfm'
 notifications:
   email: false
