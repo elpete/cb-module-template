@@ -143,8 +143,10 @@ component {
             var initCommand = method.invoke(Git, javacast("null", ""));
             // can't use CommandCaller since it expects a `GitCommand` and `InitCommand` does not inherit from there
             // local.repo = CommandCaller.call( initCommand );
-            local.repo = initCommand.call()
-            // command( "!git init" ).run();
+            var jDirectory = createObject( "java", "java.io.File" ).init( arguments.directory );
+            local.repo = initCommand
+                .setDirectory( jDirectory )
+                .call();
 
             var addCommand = local.repo.add().addFilePattern( "." );
             CommandCaller.call( addCommand );
