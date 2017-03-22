@@ -132,6 +132,8 @@ component {
             return;
         }
 
+        print.line().boldBlueLine( "Setting up your Git repo...." ).toConsole();
+
         // This will trap the full java exceptions to work around this annoying behavior:
         // https://luceeserver.atlassian.net/browse/LDEV-454
         var CommandCaller = createObject( 'java', 'com.ortussolutions.commandbox.jgit.CommandCaller' ).init();
@@ -150,13 +152,11 @@ component {
 
             var addCommand = local.repo.add().addFilePattern( "." );
             CommandCaller.call( addCommand );
-            // command( "!git add ." ).run();
 
             var commitCommand = local.repo.commit()
                 .setMessage( "Initial commit" )
                 .setAuthor( arguments.author, arguments.email );
             CommandCaller.call( commitCommand );
-            // command( '!git commit -m "Initial commit"' ).run();    
         }
         catch ( any var e ) {
             // If the exception came from the Java call, this exception won't be null
@@ -177,10 +177,14 @@ component {
             }
         }
 
+        print.blueLine( "Git repo initialized with an initial commit." ).toConsole();
+
         if ( ! createGitHubRepo ) {
             finishUp();
             return;
         }
+
+        print.line().boldMagentaLine( "Creating GitHub repo...." ).toConsole();
         
         if ( ! len( moduleSettings.githubToken ) ) {
             return error( "No GitHub Token provided.  Create one at https://github.com/settings/tokens/new.<br />Then set it by runnning the command:<br /><br />config set modules.cb-module-template.githubToken=" );
@@ -196,6 +200,8 @@ component {
             } )#" );
         }
 
+        print.magentaLine( "Repo created on Github." ).line().toConsole();
+
         var response = deserializeJSON( githubRequest.filecontent );
 
         try {
@@ -204,7 +210,6 @@ component {
             remoteAddCommand.setName( "origin" )
             remoteAddCommand.setUri( uri );
             CommandCaller.call( remoteAddCommand );
-            // command( "!git remote add origin #response.ssh_url#" ).run();
 
             // set the upstream
             var configConstants = createObject( "java", "org.eclipse.jgit.lib.ConfigConstants" );
@@ -221,7 +226,6 @@ component {
                 .add( "master" )
                 .setProgressMonitor( progressMonitor );
             CommandCaller.call( pushCommand );
-            // command( "!git push -u origin master" ).run();
         }
         catch ( any var e ) {
             // If the exception came from the Java call, this exception won't be null
@@ -241,6 +245,9 @@ component {
                 throw( message="Error Cloning Git repository", detail="#deepMessage#",  type="ModuleScaffoldException");
             }
         }
+
+        print.line().line()
+            .magentaLine( "GitHub set up as origin and module pushed." ).toConsole();
 
         finishUp();
     }
