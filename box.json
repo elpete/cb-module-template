@@ -27,13 +27,13 @@
         }
     ],
     "dependencies":{
-        
+        "cbgithub":"^0.1.3"
     },
     "devDependencies":{
         
     },
     "installPaths":{
-        
+        "cbgithub":"modules/cbgithub"
     },
     "scripts":{
         "postVersion":"package set location='elpete/cb-module-template#v`package version`'",

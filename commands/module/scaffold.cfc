@@ -32,7 +32,10 @@
 component {
 
     property name="moduleSettings" inject="commandbox:moduleSettings:cb-module-template";
+    property name="OAuthService" inject="OAuthService@cbgithub";
+    property name="ConfigService" inject="ConfigService";
     property name="system" inject="system@constants";
+    property name="wirebox" inject="wirebox";
 
     variables.templatePath = "/cb-module-template/template/";
 
@@ -51,12 +54,13 @@ component {
         required string moduleName,
         required string description,
         string directory = "",
-        boolean createGitRepo = true,
-        boolean createGitHubRepo = true,
         string gitUsername,
         string location,
         string author,
-        string email
+        string email,
+        boolean createGitHubRepo = true,
+        boolean createGitRepo = true,
+        boolean useIntegrationTesting = true
     ) {
         arguments.author = arguments.author ?: moduleSettings.author;
         arguments.email = arguments.email ?: moduleSettings.email;
@@ -73,6 +77,8 @@ component {
             directoryCreate( arguments.directory );
         }
 
+        print.line().boldCyanLine( "Copying template over...." ).toConsole();
+
         var readme = fileRead( templatePath & "README.md.stub" );
         readme = replaceNoCase( readme, "@@moduleName@@", arguments.moduleName, "all" );
         readme = replaceNoCase( readme, "@@gitUsername@@", arguments.gitUsername, "all" );
@@ -80,7 +86,12 @@ component {
         readme = replaceNoCase( readme, "@@description@@", arguments.description, "all" );
         readme = replaceNoCase( readme, "@@location@@", arguments.location, "all" );
 
-        var boxJSON = fileRead( templatePath & "box.json.stub" );
+        if ( useIntegrationTesting ) {
+            var boxJSON = fileRead( templatePath & "box-integration.json.stub" );
+        }
+        else {
+            var boxJSON = fileRead( templatePath & "box.json.stub" );
+        }
         boxJSON = replaceNoCase( boxJSON, "@@moduleName@@", arguments.moduleName, "all" );
         boxJSON = replaceNoCase( boxJSON, "@@gitUsername@@", arguments.gitUsername, "all" );
         boxJSON = replaceNoCase( boxJSON, "@@author@@", arguments.author, "all" );
@@ -114,6 +125,7 @@ component {
         // clean out stubs
         fileDelete( arguments.directory & "/README.md.stub" );
         fileDelete( arguments.directory & "/box.json.stub" );
+        fileDelete( arguments.directory & "/box-integration.json.stub" );
         fileDelete( arguments.directory & "/ModuleConfig.cfc.stub" );
         fileDelete( arguments.directory & "/tests/resources/ModuleIntegrationSpec.cfc.stub" );
         fileDelete( arguments.directory & "/tests/specs/integration/SampleIntegrationSpec.cfc.stub" );
@@ -125,6 +137,13 @@ component {
         fileWrite( arguments.directory & "/tests/resources/ModuleIntegrationSpec.cfc", moduleIntegrationSpec );
         fileWrite( arguments.directory & "/tests/specs/integration/SampleIntegrationSpec.cfc", sampleIntegrationSpec );
 
+        if ( ! useIntegrationTesting ) {
+            directoryDelete( arguments.directory & "/tests/resources", true );
+            directoryDelete( arguments.directory & "/tests/specs/integration", true );
+        }
+
+        print.line().boldWhiteLine( "Installing dependencies...." ).toConsole();
+
         command( "install" ).run();
 
         if ( ! createGitRepo ) {
@@ -132,7 +151,7 @@ component {
             return;
         }
 
-        print.line().boldBlueLine( "Setting up your Git repo...." ).toConsole();
+        print.boldBlueLine( "Setting up your Git repo...." ).toConsole();
 
         // This will trap the full java exceptions to work around this annoying behavior:
         // https://luceeserver.atlassian.net/browse/LDEV-454
@@ -187,25 +206,95 @@ component {
         print.line().boldMagentaLine( "Creating GitHub repo...." ).toConsole();
         
         if ( ! len( moduleSettings.githubToken ) ) {
-            return error( "No GitHub Token provided.  Create one at https://github.com/settings/tokens/new.<br />Then set it by runnning the command:<br /><br />config set modules.cb-module-template.githubToken=" );
+            print.line().line( "I couldn't find a GitHub token for you.  Let's create one now!" );
+            var username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
+            var password = ask( message = "Password: ", mask = "*" );
+            var token = "";
+            var otp = "";
+
+            var loop = true;
+            while ( loop ) {
+                try {
+                    loop = false;
+                    token = OAuthService.createToken(
+                        note = "cb-module-template",
+                        scopes = [ "read:org", "user:email", "repo", "write:repo_hook" ],
+                        username = username,
+                        password = password,
+                        oneTimePassword = otp
+                    );
+                }
+                catch ( TwoFactorAuthRequired e ) {
+                    loop = true;
+                    otp = ask( "Two-factor Authentication Code: " );
+                }
+                catch( TokenAlreadyExists e ) {
+                    loop = true;
+                    print.line().redLine( "Whoops!  Looks like you've created a token for cb-module-template in the past." ).toConsole();
+                    var response = ask( message = "Would you like us to delete that token and create a new one? (y/n) ", defaultResponse = "y" );
+                    
+                    if ( lcase( response ) == 'n') {
+                        print.line( "Okay.  We won't be able to create your GitHub repository then." );
+                        finishUp();
+                        return;
+                    }
+
+                    var tokens = OAuthService.getAll(
+                        username = username,
+                        password = password,
+                        oneTimePassword = otp
+                    );
+
+                    var existingToken = tokens.filter( function( token ) {
+                        return token.getNote() == "cb-module-template";
+                    } );
+
+                    if ( ! arrayIsEmpty( existingToken ) ) {
+                        existingToken[ 1 ].delete(
+                            username = username,
+                            password = password,
+                            oneTimePassword = otp
+                        );
+                    }
+                }
+                catch ( BadCredentials e ) {
+                    print.boldRedLine( "Bad credentials.  Please try again." ).line().toConsole();
+                    username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
+                    password = ask( message = "Password: ", mask = "*" );
+                    loop = true;
+                }
+            }
+
+            print.blackOnWhiteLine( "Token created!." ).line();
+
+            ConfigService.setSetting(
+                name = "modules.cb-module-template.githubToken",
+                value = token.getToken()
+            );
+
+            // refresh module settings
+            moduleSettings = wirebox.getInstance( dsl = "commandbox:moduleSettings:cb-module-template" );
         }
 
-        cfhttp( url="https://api.github.com/user/repos", method="post", result="githubRequest", throwonerror="true" ) {
-            cfhttpparam( type="header", name="Content-Type", value="application/json" );
-            cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.githubToken#" );
-            cfhttpparam( type="body", value="#serializeJSON( {
-                "name" = moduleName,
-                "description" = description,
-                "homepage" = ""
-            } )#" );
+        try {
+            var githubRepo = wirebox.getInstance( "Repository@cbgithub" );
+            githubRepo.setOwner( gitUsername );
+            githubRepo.setName( moduleName );
+            githubRepo.setDescription( description );
+            githubRepo.save( token = moduleSettings.githubToken );
+        }
+        catch ( APIError e ) {
+            var msg = deserializeJSON( e.message );
+            return error( message = msg.message, detail = msg.errors.map( function( err ) {
+                return err.message;
+            } ).toList("\n") );
         }
 
         print.magentaLine( "Repo created on Github." ).line().toConsole();
 
-        var response = deserializeJSON( githubRequest.filecontent );
-
         try {
-            var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" ).init( response.ssh_url );
+            var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )
+                .init( githubRepo.getSSHUrl() );
             var remoteAddCommand = local.repo.remoteAdd();
             remoteAddCommand.setName( "origin" )
             remoteAddCommand.setUri( uri );
