@@ -272,8 +272,7 @@ component {
                 value = token.getToken()
             );
 
-            // refresh module settings
-            moduleSettings = wirebox.getInstance( dsl = "commandbox:moduleSettings:cb-module-template" );
+            moduleSettings.githubToken = token.getToken();
         }
 
         try {
@@ -290,7 +289,64 @@ component {
             } ).toList("\n") );
         }
 
-        print.magentaLine( "Repo created on Github." ).line().toConsole();
+        print.boldMagentaLine( "Repo created on Github." ).line().toConsole();
+
+        // Turn on Travis CI
+        if ( ! len( moduleSettings.travisToken ) ) {
+            print.line().line( "I couldn't find a Travis token for you.  Creating one from your GitHub token now." ).toConsole();
+            cfhttp( url="https://api.travis-ci.org/auth/github", method="POST", result="token", throwonerror="true" ) {
+                // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+                cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+                cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+                cfhttpparam( type="header", name="Content-Type", value="application/json" );
+                cfhttpparam( type="body", value=serializeJSON( {"github_token" = "#moduleSettings.githubToken#"} ) );
+            }
+
+            ConfigService.setSetting(
+                name = "modules.cb-module-template.travisToken",
+                value = deserializeJSON( token.filecontent ).access_token
+            );
+
+            moduleSettings.travisToken = deserializeJSON( token.filecontent ).access_token;
+
+            // refresh module settings
+            moduleSettings = wirebox.getInstance( dsl = "commandbox:moduleSettings:cb-module-template" );
+            print.blackOnWhiteLine( "Token created!." ).line().toConsole();
+        }
+
+        print.greenLine( "Syncing GitHub repos with Travis...." ).toConsole();
+        cfhttp( url="https://api.travis-ci.org/users/sync", method="POST", result="syncTravis" ) {
+            cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
+            // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+            cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+            cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+        }
+        sleep( 2000 );
+
+        cfhttp( url="https://api.travis-ci.org/repos/#gitUsername#/#moduleName#", result="travisRepo", throwonerror="true" ) {
+            cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
+            // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+            cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+            cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+        }
+
+        var travisRepoId = deserializeJSON( travisRepo.filecontent ).repo.id;
+
+        cfhttp( url="https://api.travis-ci.org/hooks", method="PUT", result="turnOnHooks", throwonerror="true" ) {
+            cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
+            // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+            cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+            cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+            cfhttpparam( type="header", name="Content-Type", value="application/json" );
+            cfhttpparam( type="body", value=serializeJSON( {
+                "hook" = {
+                    "id" = travisRepoId,
+                    "active" = true
+                }
+            } ) );
+        }
+
+        print.boldGreenLine( "Builds turned on in Travis." ).line().toConsole();
 
         try {
             var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )

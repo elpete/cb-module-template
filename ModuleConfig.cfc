@@ -5,6 +5,7 @@ component {
     function configure() {
         settings = {
             githubToken = "",
+            travisToken = "",
             gitUsername = "",
             author = "",
             email = ""
