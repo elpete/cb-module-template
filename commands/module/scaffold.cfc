@@ -367,7 +367,7 @@ component {
             var configConstants = createObject( "java", "org.eclipse.jgit.lib.ConfigConstants" );
             var config = local.repo.getRepository().getConfig();
             config.setString( configConstants.CONFIG_BRANCH_SECTION, "master", "remote", "origin" );
-            config.setString( configConstants.CONFIG_BRANCH_SECTION, "local-branch", "merge", "refs/heads/master" );
+            config.setString( configConstants.CONFIG_BRANCH_SECTION, "master", "merge", "refs/heads/master" );
             config.save();
 
             // Wrap up system out in a PrintWriter and create a progress monitor to track our clone
