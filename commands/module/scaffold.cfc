@@ -35,6 +35,7 @@ component {
     property name="moduleSettings" inject="commandbox:moduleSettings:cb-module-template";
     property name="OAuthService" inject="OAuthService@cbgithub";
     property name="ConfigService" inject="ConfigService";
+    property name="log" inject="logbox:logger:{this}";
     property name="system" inject="system@constants";
     property name="wirebox" inject="wirebox";
 
@@ -386,12 +387,12 @@ component {
         }
 
         try {
-	    // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
+        // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
             var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )
                 .init( "https://github.com/#githubRepo.getFullName()#.git" );
                 
             print.yellowLine( "Pushing module to https://github.com/#githubRepo.getFullName()#.git" ).line().toConsole();
-        	
+            
             var remoteAddCommand = local.repo.remoteAdd();
             remoteAddCommand.setName( "origin" )
             remoteAddCommand.setUri( uri );
@@ -408,13 +409,13 @@ component {
             var printWriter = createObject( "java", "java.io.PrintWriter" ).init( system.out, true );
             var progressMonitor = createObject( "java", "org.eclipse.jgit.lib.TextProgressMonitor" ).init( printWriter );
             var credentialsProvider = createObject( "java", "org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider" )
-	        .init( moduleSettings.githubToken, "" );
+            .init( moduleSettings.githubToken, "" );
 
             var pushCommand = local.repo.push()
                 .setRemote( "origin" )
                 .add( "master" )
                 .setProgressMonitor( progressMonitor )
-	        .setCredentialsProvider( credentialsProvider );
+                .setCredentialsProvider( credentialsProvider );
 
             CommandCaller.call( pushCommand );
 
