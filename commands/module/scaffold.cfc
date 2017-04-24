@@ -143,7 +143,6 @@ component {
             directoryDelete( arguments.directory & "/tests/specs/integration", true );
         }
         
-        
         print.line().boldGreeneLine( "Module created in [#arguments.directory#]" ).toConsole();
 
         print.line().boldWhiteLine( "Installing dependencies...." ).toConsole();
@@ -353,12 +352,11 @@ component {
         print.boldGreenLine( "Builds turned on in Travis." ).line().toConsole();
 
         try {
+	    // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
             var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )
-                //.init( githubRepo.getSSHUrl() );
-                // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
-                .init( 'https://github.com/#githubRepo.getFullName()#.git' );
+                .init( "https://github.com/#githubRepo.getFullName()#.git" );
                 
-        	print.yellowLine( 'Pushing module to  https://github.com/#githubRepo.getFullName()#.git' ).line().toConsole();
+            print.yellowLine( "Pushing module to https://github.com/#githubRepo.getFullName()#.git" ).line().toConsole();
         	
             var remoteAddCommand = local.repo.remoteAdd();
             remoteAddCommand.setName( "origin" )
@@ -373,14 +371,17 @@ component {
             config.save();
 
             // Wrap up system out in a PrintWriter and create a progress monitor to track our clone
-            var printWriter = createObject( 'java', 'java.io.PrintWriter' ).init( system.out, true );
-            var progressMonitor = createObject( 'java', 'org.eclipse.jgit.lib.TextProgressMonitor' ).init( printWriter );
-            var credentialsProvider = createObject( 'java', 'org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider' ).init( moduleSettings.githubToken, "" );
+            var printWriter = createObject( "java", "java.io.PrintWriter" ).init( system.out, true );
+            var progressMonitor = createObject( "java", "org.eclipse.jgit.lib.TextProgressMonitor" ).init( printWriter );
+            var credentialsProvider = createObject( "java", "org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider" )
+	        .init( moduleSettings.githubToken, "" );
+
             var pushCommand = local.repo.push()
                 .setRemote( "origin" )
                 .add( "master" )
                 .setProgressMonitor( progressMonitor )
-				.setCredentialsProvider( credentialsProvider );
+	        .setCredentialsProvider( credentialsProvider );
+
             CommandCaller.call( pushCommand );
           
         }
