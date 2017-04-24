@@ -1,8 +1,8 @@
 {
     "name":"cb-module-template",
-    "version":"1.4.0",
+    "version":"1.4.1",
     "author":"Eric Peterson",
-    "location":"elpete/cb-module-template#v1.4.0",
+    "location":"elpete/cb-module-template#v1.4.1",
     "homepage":"https://github.com/elpete/cb-module-template",
     "documentation":"https://github.com/elpete/cb-module-template",
     "repository":{
