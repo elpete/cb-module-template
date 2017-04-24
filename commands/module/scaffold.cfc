@@ -321,7 +321,7 @@ component {
         // Turn on Travis CI
         if ( ! len( moduleSettings.travisToken ) ) {
             print.line().line( "I couldn't find a Travis token for you.  Creating one from your GitHub token now." ).toConsole();
-            cfhttp( url="https://api.travis-ci.org/auth/github", method="POST", result="token", throwonerror="true" ) {
+            cfhttp( url="https://api.travis-ci.org/auth/github", method="POST", result="local.token", throwonerror="true" ) {
                 // "MyClient/1.0.0" is used because Travis is bonkers with anything else
                 cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
                 cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
@@ -342,7 +342,7 @@ component {
         }
 
         print.greenLine( "Syncing GitHub repos with Travis...." ).toConsole();
-        cfhttp( url="https://api.travis-ci.org/users/sync", method="POST", result="syncTravis" ) {
+        cfhttp( url="https://api.travis-ci.org/users/sync", method="POST", result="local.syncTravis" ) {
             cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
             // "MyClient/1.0.0" is used because Travis is bonkers with anything else
             cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
@@ -350,21 +350,29 @@ component {
         }
 
         var tries = 1;
+        var travisRepoId = 0;
+        print.text( "Please wait while Travis CI syncs with you GitHub account." );
         while ( tries <= 10 ) {
-            cfhttp( url="https://api.travis-ci.org/users", method="GET", result="syncIsDone" ) {
-                cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
-                // "MyClient/1.0.0" is used because Travis is bonkers with anything else
-                cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
-                cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+            try {
+                cfhttp( url="https://api.travis-ci.org/repos/#gitUsername#/#moduleName#", result="local.travisRepo", throwonerror="true" ) {
+                    cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
+                    // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+                    cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+                    cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+                }
+
+                travisRepoId = deserializeJSON( travisRepo.filecontent ).repo.id;
+                
+                break;    
             }
-            if ( ! deserializeJSON( syncIsDone.filecontent )[ "user" ][ "is_syncing" ] ) {
-                break;
+            catch ( any e ) {
+                print.text( "." );
+                sleep( 1000 );
+                tries++;    
             }
-            sleep( 1000 );
-            tries++;
         }
 
-        if ( tries > 10 ) {
+        if ( tries > 10 || travisRepoId == 0 ) {
             print.boldRed( "Whoops! " )
                 .redLine( "There was some trouble turning on the Travis builds.  You may need to handle that manually.  Sorry!")
                 .line()
@@ -372,16 +380,7 @@ component {
         }
         else {
             try {
-                cfhttp( url="https://api.travis-ci.org/repos/#gitUsername#/#moduleName#", result="travisRepo", throwonerror="true" ) {
-                    cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
-                    // "MyClient/1.0.0" is used because Travis is bonkers with anything else
-                    cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
-                    cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
-                }
-
-                var travisRepoId = deserializeJSON( travisRepo.filecontent ).repo.id;
-
-                cfhttp( url="https://api.travis-ci.org/hooks", method="PUT", result="turnOnHooks", throwonerror="true" ) {
+                cfhttp( url="https://api.travis-ci.org/hooks", method="PUT", result="local.turnOnHooks", throwonerror="true" ) {
                     cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
                     // "MyClient/1.0.0" is used because Travis is bonkers with anything else
                     cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
