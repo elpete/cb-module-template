@@ -70,15 +70,15 @@ component {
 
         if ( ! len( gitUsername ) && isNull( location ) ) {
         	
-            print.boldRedLine( 'No Git username set.' )
+            print.boldRedLine( "No Git username set." )
             	.line()
-            	.boldRedLine( 'One of three things needs to happen:' )
-            	.boldRedLine( '1. A global Git username needs to be set' )
-            	.boldRedLine( '2. A `gitUsername` parameter needs to be passed in.' )
-            	.boldRedLine( '3. A `location` parameter needs to be passed in.' )
+            	.boldRedLine( "One of three things needs to happen:" )
+            	.boldRedLine( "1. A global Git username needs to be set" )
+            	.boldRedLine( "2. A `gitUsername` parameter needs to be passed in." )
+            	.boldRedLine( "3. A `location` parameter needs to be passed in." )
             	.line()
-            	.boldYellowline( 'We can go ahead and setup your GitHub token if you provide us with your Github username.' )
-            	.boldYellowline( 'I you want to set a `location` instead, just leave empty or press Ctrl+c to quit' )
+            	.boldYellowline( "We can go ahead and setup your GitHub token if you provide us with your Github username." )
+            	.boldYellowline( "I you want to set a `location` instead, just leave empty or press Ctrl+c to quit" )
             	.line();
             	
             var gitHubUsername = ask( 'GitHub Username: ' );
