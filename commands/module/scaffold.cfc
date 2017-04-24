@@ -1,7 +1,8 @@
 /**
 * Create a new standalone ColdBox module.
 * Comes complete with testing facilities and ready to publish to ForgeBox.
-* This command will create a new directory in the current directory.
+* This command will create the module in the current directory so make sure you 
+* create the folder you want to hold the module and "cd" into it. 
 * When you're ready to publish, just bump your package to publish your first 1.0.0!
 * 
 * {code:bash}
@@ -141,6 +142,9 @@ component {
             directoryDelete( arguments.directory & "/tests/resources", true );
             directoryDelete( arguments.directory & "/tests/specs/integration", true );
         }
+        
+        
+        print.line().boldGreeneLine( "Module created in [#arguments.directory#]" ).toConsole();
 
         print.line().boldWhiteLine( "Installing dependencies...." ).toConsole();
 
@@ -207,8 +211,8 @@ component {
         
         if ( ! len( moduleSettings.githubToken ) ) {
             print.line().line( "I couldn't find a GitHub token for you.  Let's create one now!" );
-            var username = ask( message = "GitHub Username: ", defaultResponse = arguments.gitUsername );
-            var password = ask( message = "GitHub Password: ", mask = "*" );
+            var username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
+            var password = ask( message = "Password: ", mask = "*" );
             var token = "";
             var otp = "";
 
@@ -259,8 +263,8 @@ component {
                 }
                 catch ( BadCredentials e ) {
                     print.boldRedLine( "Bad credentials.  Please try again." ).line().toConsole();
-                    username = ask( message = "GitHub Username: ", defaultResponse = arguments.gitUsername );
-                    password = ask( message = "GitHub Password: ", mask = "*" );
+                    username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
+                    password = ask( message = "Password: ", mask = "*" );
                     loop = true;
                 }
             }
@@ -350,7 +354,12 @@ component {
 
         try {
             var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )
-                .init( githubRepo.getSSHUrl() );
+                //.init( githubRepo.getSSHUrl() );
+                // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
+                .init( 'https://github.com/#githubRepo.getFullName()#.git' );
+                
+        	print.yellowLine( 'Pushing module to  https://github.com/#githubRepo.getFullName()#.git' ).line().toConsole();
+        	
             var remoteAddCommand = local.repo.remoteAdd();
             remoteAddCommand.setName( "origin" )
             remoteAddCommand.setUri( uri );
@@ -366,11 +375,14 @@ component {
             // Wrap up system out in a PrintWriter and create a progress monitor to track our clone
             var printWriter = createObject( 'java', 'java.io.PrintWriter' ).init( system.out, true );
             var progressMonitor = createObject( 'java', 'org.eclipse.jgit.lib.TextProgressMonitor' ).init( printWriter );
+            var credentialsProvider = createObject( 'java', 'org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider' ).init( moduleSettings.githubToken, "" );
             var pushCommand = local.repo.push()
                 .setRemote( "origin" )
                 .add( "master" )
-                .setProgressMonitor( progressMonitor );
+                .setProgressMonitor( progressMonitor )
+				.setCredentialsProvider( credentialsProvider );
             CommandCaller.call( pushCommand );
+          
         }
         catch ( any var e ) {
             // If the exception came from the Java call, this exception won't be null
