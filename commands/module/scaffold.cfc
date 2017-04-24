@@ -207,8 +207,8 @@ component {
         
         if ( ! len( moduleSettings.githubToken ) ) {
             print.line().line( "I couldn't find a GitHub token for you.  Let's create one now!" );
-            var username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
-            var password = ask( message = "Password: ", mask = "*" );
+            var username = ask( message = "GitHub Username: ", defaultResponse = arguments.gitUsername );
+            var password = ask( message = "GitHub Password: ", mask = "*" );
             var token = "";
             var otp = "";
 
@@ -259,8 +259,8 @@ component {
                 }
                 catch ( BadCredentials e ) {
                     print.boldRedLine( "Bad credentials.  Please try again." ).line().toConsole();
-                    username = ask( message = "Username: ", defaultResponse = arguments.gitUsername );
-                    password = ask( message = "Password: ", mask = "*" );
+                    username = ask( message = "GitHub Username: ", defaultResponse = arguments.gitUsername );
+                    password = ask( message = "GitHub Password: ", mask = "*" );
                     loop = true;
                 }
             }
