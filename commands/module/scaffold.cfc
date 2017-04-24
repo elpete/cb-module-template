@@ -158,8 +158,8 @@ component {
 
         // This will trap the full java exceptions to work around this annoying behavior:
         // https://luceeserver.atlassian.net/browse/LDEV-454
-        var CommandCaller = createObject( 'java', 'com.ortussolutions.commandbox.jgit.CommandCaller' ).init();
-        var Git = createObject( 'java', 'org.eclipse.jgit.api.Git' );
+        var CommandCaller = createObject( "java", "com.ortussolutions.commandbox.jgit.CommandCaller" ).init();
+        var Git = createObject( "java", "org.eclipse.jgit.api.Git" );
 
         try {
             // Have to use reflection here since `init` tries to call the constructor
