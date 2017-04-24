@@ -406,7 +406,18 @@ component {
 	        .setCredentialsProvider( credentialsProvider );
 
             CommandCaller.call( pushCommand );
-          
+
+            // Now that the initial push is done, let's set the default URL for the origin remote back to the SSH format
+            config.unsetSection("remote", "origin");
+            config.save();
+
+            var uri = createObject( "java", "org.eclipse.jgit.transport.URIish" )
+                .init( githubRepo.getSshUrl() );
+                            
+            var remoteAddCommand = local.repo.remoteAdd();
+            remoteAddCommand.setName( "origin" )
+            remoteAddCommand.setUri( uri );
+            CommandCaller.call( remoteAddCommand );
         }
         catch ( any var e ) {
             // If the exception came from the Java call, this exception won't be null
