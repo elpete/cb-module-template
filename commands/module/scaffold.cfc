@@ -398,7 +398,7 @@ component {
                 print.boldGreenLine( "Builds turned on in Travis." ).line().toConsole();
             }
             catch ( any e ) {
-                log.debug( "Travis Repo Id: #travisRepoId#" );
+                log.debug( "Travis Repo Id: #travisRepoId ?: 'N/A'#" );
                 log.error( "Exception thrown trying to activate Travis CI", e );
 
                 print.boldRed( "Whoops! " )
