@@ -68,7 +68,30 @@ component {
         arguments.gitUsername = arguments.gitUsername ?: moduleSettings.gitUsername;
 
         if ( ! len( gitUsername ) && isNull( location ) ) {
-            return error( "No Git username set.<br/>One of three things needs to happen:<br/><br/>1. A global Git username needs to be set<br/>config set modules.cb-module-template.gitUsername= <br/><br/>2. A `gitUsername` parameter needs to be passed in.<br/><br/>3. A `location` parameter needs to be passed in." );
+        	
+            print.boldRedLine( 'No Git username set.' )
+            	.line()
+            	.boldRedLine( 'One of three things needs to happen:' )
+            	.boldRedLine( '1. A global Git username needs to be set' )
+            	.boldRedLine( '2. A `gitUsername` parameter needs to be passed in.' )
+            	.boldRedLine( '3. A `location` parameter needs to be passed in.' )
+            	.line()
+            	.boldYellowline( 'We can go ahead and setup your GitHub token if you provide us with your Github username.' )
+            	.boldYellowline( 'I you want to set a `location` instead, just leave empty or press Ctrl+c to quit' )
+            	.line();
+            	
+            var gitHubUsername = ask( 'GitHub Username: ' );
+            if( !gitHubUsername.len() ) {
+            	print.line( 'Ok, exiting.  Come back later when you have set up your location or have your GitHub credentials ready.' );
+            	return;	
+            }
+
+            ConfigService.setSetting(
+                name = "modules.cb-module-template.gitUsername",
+                value = gitHubUsername
+            );
+			arguments.gitUsername = gitHubUsername;
+
         }
 
         arguments.location = arguments.location ?: "#gitUsername#/#moduleName#";
