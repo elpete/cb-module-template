@@ -358,21 +358,32 @@ component {
 
         var travisRepoId = deserializeJSON( travisRepo.filecontent ).repo.id;
 
-        cfhttp( url="https://api.travis-ci.org/hooks", method="PUT", result="turnOnHooks", throwonerror="true" ) {
-            cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
-            // "MyClient/1.0.0" is used because Travis is bonkers with anything else
-            cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
-            cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
-            cfhttpparam( type="header", name="Content-Type", value="application/json" );
-            cfhttpparam( type="body", value=serializeJSON( {
-                "hook" = {
-                    "id" = travisRepoId,
-                    "active" = true
-                }
-            } ) );
-        }
+        try {
+            cfhttp( url="https://api.travis-ci.org/hooks", method="PUT", result="turnOnHooks", throwonerror="false" ) {
+                cfhttpparam( type="header", name="Authorization", value="token #moduleSettings.travisToken#" );
+                // "MyClient/1.0.0" is used because Travis is bonkers with anything else
+                cfhttpparam( type="header", name="User-Agent", value="MyClient/1.0.0" );
+                cfhttpparam( type="header", name="Accept", value="application/vnd.travis-ci.2+json" );
+                cfhttpparam( type="header", name="Content-Type", value="application/json" );
+                cfhttpparam( type="body", value=serializeJSON( {
+                    "hook" = {
+                        "id" = travisRepoId,
+                        "active" = true
+                    }
+                } ) );
+            }
 
-        print.boldGreenLine( "Builds turned on in Travis." ).line().toConsole();
+            print.boldGreenLine( "Builds turned on in Travis." ).line().toConsole();
+        }
+        catch ( any e ) {
+            log.debug( "Travis Repo Id: #travisRepoId#" );
+            log.error( "Exception thrown trying to activate Travis CI", e );
+
+            print.boldRed( "Whoops! " )
+                .redLine( "There was some trouble turning on the Travis builds.  You may need to handle that manually.  Sorry!")
+                .line()
+                .toConsole();
+        }
 
         try {
 	    // Using HTTPS URL so the GitHub Oauth token will work without complaining about not knowing the github.com host.
