@@ -16,8 +16,8 @@ box module scaffold myCoolModule "Short Module Description"
 
 ### Requirements
 
-The GitHub integration assumes you have a GitHub account already.  The command will ask you for your GitHub username and password and will create an API token for you to publish your module.
+The **GitHub** integration assumes you have a GitHub account already.  The command will ask you for your GitHub username and password and will create an API token for you to publish your module.
 
-The Travis integratino requires no extra work.  It's just tied to your GitHub account.
+The **Travis** integratino requires no extra work.  It's just tied to your GitHub account.
 
-ForgeBox publishing assumes you have a Forgebox.io account.  To create one, use the `forgebox register` command.
+**ForgeBox** publishing assumes you have a Forgebox.io account.  To create one, use the `forgebox register` command.
