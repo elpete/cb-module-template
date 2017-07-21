@@ -10,8 +10,15 @@ component{
 	this.sessionTimeout = createTimeSpan(0,0,30,0);
 	this.setClientCookies = true;
 
+	appPath = getDirectoryFromPath( getCurrentTemplatePath() );
+	this.mappings[ "/app" ] = appPath;
+	rootPath = replaceNoCase( this.mappings[ "/app" ], "/tests/resources/app", "" );
+	this.mappings[ "/root" ] = rootPath;
+	this.mappings[ "/testingModuleRoot" ] = listDeleteAt( rootPath, listLen( rootPath, '\/' ), "\/" );
+	this.mappings[ "/coldbox" ] = appPath & "coldbox";
+
 	// COLDBOX STATIC PROPERTY, DO NOT CHANGE UNLESS THIS IS NOT THE ROOT OF YOUR COLDBOX APP
-	COLDBOX_APP_ROOT_PATH = getDirectoryFromPath( getCurrentTemplatePath() );
+	COLDBOX_APP_ROOT_PATH = appPath;
 	// The web server mapping to this application. Used for remote purposes or static purposes
 	COLDBOX_APP_MAPPING   = "";
 	// COLDBOX PROPERTIES
