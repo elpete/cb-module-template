@@ -1,5 +1,9 @@
 # A CommandBox tool for scaffolding ForgeBox modules
 
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/TQMfPZtDP7SHs7UgJVGg61uH/elpete/cb-module-template'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/TQMfPZtDP7SHs7UgJVGg61uH/elpete/cb-module-template.svg' />
+</a>
+
 ### Usage
 
 Quickly create a ColdBox module that is ready to go with
