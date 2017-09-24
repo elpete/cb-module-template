@@ -1,4 +1,5 @@
 # A CommandBox tool for scaffolding ForgeBox modules
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 
 <a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/TQMfPZtDP7SHs7UgJVGg61uH/elpete/cb-module-template'>
   <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/TQMfPZtDP7SHs7UgJVGg61uH/elpete/cb-module-template.svg' />
@@ -25,3 +26,14 @@ The **GitHub** integration assumes you have a GitHub account already.  The comma
 The **Travis** integration requires no extra work.  It's just tied to your GitHub account.
 
 **ForgeBox** publishing assumes you have a Forgebox.io account.  To create one, use the `forgebox register` command.
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+| [<img src="https://avatars1.githubusercontent.com/u/2583646?v=4" width="100px;"/><br /><sub>Eric Peterson</sub>](https://github.com/elpete)<br />[💻](https://github.com/elpete/cb-module-template/commits?author=elpete "Code") [📖](https://github.com/elpete/cb-module-template/commits?author=elpete "Documentation") [📢](#talk-elpete "Talks") |
+| :---: |
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
