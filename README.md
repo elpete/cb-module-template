@@ -27,15 +27,4 @@ The **Travis** integration requires no extra work.  It's just tied to your GitHu
 
 ### Presentations
 
-+ [Making Modules](https://speakerdeck.com/elpete/making-modules)
-
-## Contributors
-
-Thanks goes to these wonderful people ([emoji key](https://github.com/kentcdodds/all-contributors#emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars1.githubusercontent.com/u/2583646?v=4" width="100px;"/><br /><sub>Eric Peterson</sub>](https://github.com/elpete)<br />[💻](https://github.com/elpete/cb-module-template/commits?author=elpete "Code") [📖](https://github.com/elpete/cb-module-template/commits?author=elpete "Documentation") [📢](#talk-elpete "Talks") | [<img src="https://avatars0.githubusercontent.com/u/584009?v=4" width="100px;"/><br /><sub>Brad Wood</sub>](http://www.codersrevolution.com)<br />[💻](https://github.com/elpete/cb-module-template/commits?author=bdw429s "Code") |
-| :---: | :---: |
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind welcome!
++ [Making Modules](https://slides.com/elpete/making-modules)
